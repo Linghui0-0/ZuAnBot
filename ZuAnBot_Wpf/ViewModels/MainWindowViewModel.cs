@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -27,6 +27,11 @@ namespace ZuAnBot_Wpf.ViewModels
         GlobalKeyboardHook hook;
 
         public WordsLibrary Library { get; set; }
+
+        // 新增：随机延迟工具
+        private static readonly Random _rnd = new Random();
+        private static int RandomDelayMs() => _rnd.Next(800, 1201); // 发送后的延迟：800~1200ms
+        private static int RandomShortMs() => _rnd.Next(80, 151);   // 输入等短延迟：80~150ms
 
         #region 绑定属性
         private bool _IsPerWord = false;
@@ -314,19 +319,18 @@ namespace ZuAnBot_Wpf.ViewModels
                 {
                     foreach (var item in word)
                     {
-                        builder = builder.
-                            Click(WindowsInput.Events.KeyCode.Enter).Wait(100).
-                            Click(allPre + item).Wait(100).
-                            Click(WindowsInput.Events.KeyCode.Enter).Wait(100);
-
+                        builder = builder
+                            .Click(WindowsInput.Events.KeyCode.Enter).Wait(RandomShortMs(300,1000))    // 打开聊天（短延迟）
+                            .Click(allPre + item).Wait(RandomShortMs(400,800))                        // 输入一个字符（短延迟）
+                            .Click(WindowsInput.Events.KeyCode.Enter).Wait(RandomDelayMs(500,1000));   // 发送并等待约 1s（随机）
                     }
                 }
                 else
                 {
-                    builder = builder.
-                        Click(WindowsInput.Events.KeyCode.Enter).Wait(100).
-                        Click(allPre + word).Wait(100).
-                        Click(WindowsInput.Events.KeyCode.Enter).Wait(100);
+                    builder = builder
+                        .Click(WindowsInput.Events.KeyCode.Enter).Wait(RandomShortMs(300,1000))        // 打开聊天（短延迟）
+                        .Click(allPre + word).Wait(RandomShortMs(400,800))                             // 输入整句（短延迟）
+                        .Click(WindowsInput.Events.KeyCode.Enter).Wait(RandomDelayMs(500,1000));        // 发送并等待约 1s（随机）
                 }
                 builder.Invoke();
             }
