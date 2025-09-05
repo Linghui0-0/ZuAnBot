@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -25,6 +25,9 @@ namespace ZuAnBot_Wpf.ViewModels
         private readonly IDialogService _dialogService;
         private readonly Apis _apis = Apis.GetInstance();
         GlobalKeyboardHook hook;
+
+        // 新增：随机数生成器（单实例）
+        private readonly Random _rng = new Random();
 
         public WordsLibrary Library { get; set; }
 
@@ -265,6 +268,12 @@ namespace ZuAnBot_Wpf.ViewModels
         #endregion
 
         /// <summary>
+        /// 生成 400-1200ms 的随机延迟
+        /// 上限为开区间，所以用 1201
+        /// </summary>
+        private int RandomDelay() => _rng.Next(400, 1201);
+
+        /// <summary>
         /// 按键勾子
         /// </summary>
         private void HookKeys()
@@ -314,19 +323,18 @@ namespace ZuAnBot_Wpf.ViewModels
                 {
                     foreach (var item in word)
                     {
-                        builder = builder.
-                            Click(WindowsInput.Events.KeyCode.Enter).Wait(100).
-                            Click(allPre + item).Wait(100).
-                            Click(WindowsInput.Events.KeyCode.Enter).Wait(100);
-
+                        builder = builder
+                            .Click(WindowsInput.Events.KeyCode.Enter).Wait(RandomDelay())
+                            .Click(allPre + item).Wait(RandomDelay())
+                            .Click(WindowsInput.Events.KeyCode.Enter).Wait(RandomDelay());
                     }
                 }
                 else
                 {
-                    builder = builder.
-                        Click(WindowsInput.Events.KeyCode.Enter).Wait(100).
-                        Click(allPre + word).Wait(100).
-                        Click(WindowsInput.Events.KeyCode.Enter).Wait(100);
+                    builder = builder
+                        .Click(WindowsInput.Events.KeyCode.Enter).Wait(RandomDelay())
+                        .Click(allPre + word).Wait(RandomDelay())
+                        .Click(WindowsInput.Events.KeyCode.Enter).Wait(RandomDelay());
                 }
                 builder.Invoke();
             }
